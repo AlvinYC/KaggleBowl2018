@@ -1,0 +1,9 @@
+**/.ipynb_checkpoints
+**/.vscode
+**/node_modules
+**.pyc
+**/.python-version
+**/.DS_Store
+pkg/ioslab/Pods
+**/data
+**/log
