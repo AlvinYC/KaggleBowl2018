@@ -41,6 +41,17 @@ external_TCGA_train            <-- Root folder
 
 ```
 
+<table>
+<tr>
+    <td> 
+        <img src='./jpg_tmp/CTGA_and_kaggle_mask_size_01.png'></img>
+    </td>
+    <td>
+        <img src='./jpg_tmp/CTGA_and_kaggle_mask_size_02.png'></img>
+    </td>
+</tr>
+</table>
+
 ![TCGP exaample](../orig_data/Tissue images_png/TCGA-18-5592-01Z-00-DX1.png)
 
 ```python
