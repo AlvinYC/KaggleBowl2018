@@ -20,7 +20,7 @@
 * pixel: 1000x1000
 * nuceli: 16966, max 1863, min 294
 * stain: H&E 
-![nuceli type](./seven_kind_of_nuceli.png)
+![nuceli type](./jpg_tmp/seven_kind_of_nuceli.png)
 
 google drive: AI Labs >> Project Execution >> Kaggle_2018_DSB >> ExternalData >> external_TCGA_train.tar.gz
 
@@ -52,7 +52,7 @@ external_TCGA_train            <-- Root folder
 </tr>
 </table>
 
-![TCGP exaample](../orig_data/Tissue images_png/TCGA-18-5592-01Z-00-DX1.png)
+![TCGP exaample](./jpg_tmp/TCGA-18-5592-01Z-00-DX1.png)
 
 ```python
 
