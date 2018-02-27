@@ -5,6 +5,7 @@
 * TCGA web https://cancergenome.nih.gov/
 * datset https://nucleisegmentationbenchmark.weebly.com
 * paper   https://drive.google.com/file/d/0ByERBiBsEbuTOEJISEpwSkR0SlE/view
+* poster http://www.iitg.ernet.in/amitsethi/posters/16.SharmaBhargava.pdf
 
 
 
