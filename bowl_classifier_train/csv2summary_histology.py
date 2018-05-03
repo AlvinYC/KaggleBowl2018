@@ -3,7 +3,8 @@ import os
 import re
 
 MODEL_SAVE_ROOT   = './model_save/'
-TASK_SET          = 'SubMajor2_stage1_final_Fixed_EPOCH90'  # *** should copy from bowl_calssifier_kaggle_major2.py ***
+#TASK_SET          = 'SubMajor2_stage1_final_Fixed_EPOCH90'  # *** should copy from bowl_calssifier_kaggle_major2.py ***
+TASK_SET          = 'test_histology'
 MODEL_NAME_HEADER = re.sub('EPOCH\d+.*','',TASK_SET)        # MODEL_NAME_HEADER = Major3_LINEAR_Softmax_K10_
 MODEL_NAME_EPOCH  = re.sub(MODEL_NAME_HEADER,'',TASK_SET)   # MODEL_NAME_EPOCH  =                           EPOCH50
 
@@ -20,12 +21,12 @@ for csv_item in sorted(csv_ids):
     fname = MODEL_SAVE_PATH + '/' + csv_item
     lines = [line.rstrip('\n') for line in open(fname)]
     
-    narrow_line = list(filter(lambda x: re.search('correct 	= (.*)',x),lines))[0]
-    all_correct = re.search('correct 	= (.*)',narrow_line).group(1)
-    narrow_line = list(filter(lambda x: re.search('total 	= (.*)',x),lines))[0]
-    all_train   = re.search('total 	= (.*)',narrow_line).group(1)
-    narrow_line = list(filter(lambda x: re.search('Total test accuracy 	=(.*) \%',x),lines))[0]
-    all_percent = re.search('Total test accuracy 	=(.*) \%',narrow_line).group(1)    
+    narrow_line = list(filter(lambda x: re.search('correct = (.*)',x),lines))[0]
+    all_correct = re.search('correct = (.*)',narrow_line).group(1)
+    narrow_line = list(filter(lambda x: re.search('total   = (.*)',x),lines))[0]
+    all_train   = re.search('total   = (.*)',narrow_line).group(1)
+    narrow_line = list(filter(lambda x: re.search('Total test accuracy    = (.*)',x),lines))[0]
+    all_percent = re.search('Total test accuracy    = (.*)',narrow_line).group(1) 
     narrow_line = list(filter(lambda x: (len(x.split('\t'))>=7) & (x.split('\t')[-1]!='confidence'), lines))                   # make sure raw is data format
     narrow_line_pred = list(filter(lambda x: x.split('\t')[3]=='0', narrow_line))        # mask sure raw is predict error
     narrow_line_conf = list(filter(lambda x: float(x.split('\t')[6])<conf_th, narrow_line))  # mask sure row is lower confidence
@@ -36,10 +37,11 @@ for csv_item in sorted(csv_ids):
     # P: percent = C/T * 100
     # C: correct number
     # T: total number       
-    narrow_line = list(filter(lambda x: re.search('Accuracy of    HE',x),lines))[0]
-    HP,HC,HT    = re.search('=(.*) \% on (.*), (.*)',narrow_line).group(1,2,3)
-    narrow_line = list(filter(lambda x: re.search('Accuracy of   IHC',x),lines))[0]
-    FP,FC,FT    = re.search('=(.*) \% on (.*), (.*)',narrow_line).group(1,2,3)
+    narrow_line = list(filter(lambda x: re.search('Accuracy of HE',x),lines))[0]
+    HP,HC,HT    = re.search('= (.*)\% on\s+(\d+) ,\s+(\d+)',narrow_line).group(1,2,3)
+    narrow_line = list(filter(lambda x: re.search('Accuracy of IHC',x),lines))[0]
+    FP,FC,FT    = re.search('= (.*)\% on\s+(\d+) ,\s+(\d+)',narrow_line).group(1,2,3)
+    
     
     csv_dict = {}
     csv_dict['all_correct'] = all_correct
@@ -80,7 +82,7 @@ fn.write(''.join(['*']*150)+'\n\n')
 ########################################################################################
 K_fold_name       = [re.sub('_epoch\d+\.csv','',x) for x in sorted(summary_dict.keys())]# Major3_L2M2_K10_EPOCH50_K08_epoch050.csv
 K_fold_name       = sorted(set(K_fold_name))                                            # Major3_L2M2_K10_EPOCH50_K08
-short_k_fold_name = [re.sub(MODEL_NAME_HEADER,'',x) for x in K_fold_name]               #                 EPOCH50_K08
+short_k_fold_name = [re.sub('.+_K','K',x) for x in K_fold_name]                         #                 EPOCH50_K08
 
 fn.write('{:10s}'.format(' '))
 fn.write('|'.join(['{:^12s}'.format(x) for x in short_k_fold_name]))
@@ -89,7 +91,7 @@ fn.write('\n')
 ########################################################################################
 # each epoch
 ########################################################################################
-epoch_list = [re.sub(MODEL_NAME_HEADER+MODEL_NAME_EPOCH+'_K\d+_|\.csv','',x) for x in sorted(summary_dict.keys())]
+epoch_list = [re.sub('.+_K\d+_|\.csv','',x) for x in sorted(summary_dict.keys())]
 epoch_list = sorted(set(epoch_list))                                         #                           _epoch050
 
 for epoch_each in epoch_list:
@@ -125,7 +127,7 @@ fn.write(''.join(['*']*150)+'\n\n')
 ########################################################################################
 K_fold_name       = [re.sub('_epoch\d+\.csv','',x) for x in sorted(summary_dict.keys())]# Major3_L2M2_K10_EPOCH50_K08_epoch050.csv
 K_fold_name       = sorted(set(K_fold_name))                                            # Major3_L2M2_K10_EPOCH50_K08
-short_k_fold_name = [re.sub(MODEL_NAME_HEADER,'',x) for x in K_fold_name]               #                 EPOCH50_K08
+short_k_fold_name = [re.sub('.+_K','K',x) for x in K_fold_name]                         #                 EPOCH50_K08
 
 fn.write('{:10s}'.format(' '))
 fn.write('|'.join(['{:^12s}'.format(x) for x in short_k_fold_name]))
@@ -162,7 +164,7 @@ fn.write('\n')
 ########################################################################################
 # each epoch
 ########################################################################################
-epoch_list = [re.sub(MODEL_NAME_HEADER+MODEL_NAME_EPOCH+'_K\d+_|\.csv','',x) for x in sorted(summary_dict.keys())]
+epoch_list = [re.sub('.+_K\d+_|\.csv','',x) for x in sorted(summary_dict.keys())]
 epoch_list = sorted(set(epoch_list))                                         #                           _epoch050
 
 for epoch_each in epoch_list:
@@ -204,7 +206,7 @@ fn.write(''.join(['*']*150)+'\n\n')
 ########################################################################################
 K_fold_name       = [re.sub('_epoch\d+\.csv','',x) for x in sorted(summary_dict.keys())]# Major3_L2M2_K10_EPOCH50_K08_epoch050.csv
 K_fold_name       = sorted(set(K_fold_name))                                            # Major3_L2M2_K10_EPOCH50_K08
-short_k_fold_name = [re.sub(MODEL_NAME_HEADER,'',x) for x in K_fold_name]               #                 EPOCH50_K08
+short_k_fold_name = [re.sub('.+_K','K',x) for x in K_fold_name]                         #                 EPOCH50_K08
 
 fn.write('{:10s}'.format(' '))
 fn.write('|'.join(['{:^12s}'.format(x) for x in short_k_fold_name]))
@@ -241,7 +243,7 @@ fn.write('\n')
 ########################################################################################
 # each epoch
 ########################################################################################
-epoch_list = [re.sub(MODEL_NAME_HEADER+MODEL_NAME_EPOCH+'_K\d+_|\.csv','',x) for x in sorted(summary_dict.keys())]
+epoch_list = [re.sub('.+_K\d+_|\.csv','',x) for x in sorted(summary_dict.keys())]
 epoch_list = sorted(set(epoch_list))                                         #                           _epoch050
 
 for epoch_each in epoch_list:
@@ -286,7 +288,7 @@ fn.write(''.join(['*']*150)+'\n\n')
 ########################################################################################
 K_fold_name       = [re.sub('_epoch\d+\.csv','',x) for x in sorted(summary_dict.keys())]# Major3_L2M2_K10_EPOCH50_K08_epoch050.csv
 K_fold_name       = sorted(set(K_fold_name))                                            # Major3_L2M2_K10_EPOCH50_K08
-short_k_fold_name = [re.sub(MODEL_NAME_HEADER,'',x) for x in K_fold_name]               #                 EPOCH50_K08
+short_k_fold_name = [re.sub('.+_K','K',x) for x in K_fold_name]                         #                 EPOCH50_K08
 
 fn.write('{:10s}'.format(' '))
 fn.write('|'.join(['{:^12s}'.format(x) for x in short_k_fold_name]))
@@ -295,7 +297,7 @@ fn.write('\n')
 ########################################################################################
 # each epoch
 ########################################################################################
-epoch_list = [re.sub(MODEL_NAME_HEADER+MODEL_NAME_EPOCH+'_K\d+_|\.csv','',x) for x in sorted(summary_dict.keys())]
+epoch_list = [re.sub('.+_K\d+_|\.csv','',x) for x in sorted(summary_dict.keys())]
 epoch_list = sorted(set(epoch_list))                                         #                           _epoch050
 
 for epoch_each in epoch_list:

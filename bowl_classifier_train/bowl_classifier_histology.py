@@ -85,7 +85,7 @@ def prepare_model_info_other(net):
     criterion        = nn.CrossEntropyLoss()
     init_lr          = 0.0001
     optimizer        = optim.SGD(net.parameters(), lr=init_lr, momentum=0.9) 
-    epoch_checkpoint = [3,5]
+    epoch_checkpoint = [10,30,50,70]
     return optimizer, epoch_checkpoint, criterion, init_lr
 
 #  ################################################################################################################
@@ -271,7 +271,10 @@ def validing_model(args,valid_loader,kth=None,labelname=None):
     net.load_state_dict(torch.load(args.valid_model))
 
     #CSV_OUT_PATH = args.ou_model_path + '/' + args.task + '/' +  args.task + '_K'+'{:03d}'.format(kth)+'_epoch'+'{:03d}'.format(epoch) + '.csv'
-    CSV_OUT_PATH = 'valid_result_'+ re.sub('.*/','',args.valid_model) + '.csv'
+    if args.mode == 'train':
+        CSV_OUT_PATH = args.ou_model_path + '/' + args.task + '/valid_result_'+ re.sub('.*/','',args.valid_model) + '.csv'
+    if args.mode == 'valid':
+        CSV_OUT_PATH = './valid_result_'+ re.sub('.*/','',args.valid_model) + '.csv'
     print('CSV_OUT_PATH: ' + CSV_OUT_PATH)
     fn = open(CSV_OUT_PATH, "w")
     fn.write("uid\tground_truth\tprediected\tcorrect\tHE\tIHC\tconfidence\n")
@@ -331,8 +334,8 @@ def validing_model(args,valid_loader,kth=None,labelname=None):
     for i in range(len(labelname)):
         class_accurcy = float(0) if int(class_total[i]) == 0 else 100 * int(class_correct[i]) // int(class_total[i])
         print('Accuracy of {:12s} = {:>6.2f}% on {:>4.0f} , {:>4.0f}'.format(invert_labelname[i], class_accurcy, class_correct[i], class_total[i]))
-        fn.write('Accuracy of {:12s} = {:>6.2f}% on {:>4.0f} , {:>4.0f}'.format(invert_labelname[i], class_accurcy, class_correct[i], class_total[i]))
-
+        fn.write('Accuracy of {:12s} = {:>6.2f}% on {:>4.0f} , {:>4.0f}\n'.format(invert_labelname[i], class_accurcy, class_correct[i], class_total[i]))
+    print('\n\n')
     fn.close()
 
 #  ##################################################################################################################
@@ -361,7 +364,7 @@ def validing_model(args,valid_loader,kth=None,labelname=None):
 if __name__ == '__main__':
     model_save_path = './model_save'        # [output] symbolic link to your desired output path
     #task_name       = 'Major3_P128x128_VGG16_Softmax_triple_lr_wo_drop2_alldata_direct_out_K00_EPOCH90' # [output] folder under ./model_save
-    task_name       = 'test' # [output] folder under ./model_save
+    task_name       = 'test_histology' # [output] folder under ./model_save
     img_path_train  = './bowl_stage1_data/stage1_train_fix_v4_external'    # [input] training image folder
     csv_path_train  = './stage1_train_fix_v4_external.csv' # [input] option, if there is csv, we can do category filter, else select all
     #img_path_test   = './bowl_stage1_data/stage1_test'     # [input] testing  image folder
@@ -381,7 +384,7 @@ if __name__ == '__main__':
     parser.add_argument('--in_valid_img', action='store', help='image path(kaggle format) for validation data')
     parser.add_argument('--in_valid_csv', action='store', help='image path(kaggle format) for validation data')
     parser.add_argument('--valid_model',  action='store', help='model for validtion data')
-
+    epoch_checkpoint = [10,30,50,70]
     parser.set_defaults(mode= 'train',
                         task= task_name,
                         in_train_img = img_path_train,
@@ -411,7 +414,7 @@ if __name__ == '__main__':
         #in this stage, it don't provide dataloader, dataloader will be prepared under k-fold loop
         dataset_train = prepare_dataset(args,category='Histology')
         print('argv.cv = ' + str(args.cv))
-        
+        print('epoch_checkpoint = ' + str())
         if re.search('\d+|loocv',args.cv):
             maxK = dataset_train.__len__() if args.cv == 'loocv' else min(int(args.cv),dataset_train.__len__())
             # k_fold cross validation with kth = 0 ... maxK
@@ -420,7 +423,11 @@ if __name__ == '__main__':
                 if kth != None: print(''.join(['*']*50) + ' K = ' + '{:02d}'.format(kth) + ' ' + ''.join(['*']*50))
                 train_loader, valid_loader, _ = prepare_dataloader(args,dataset_train, dataset_test=None, K_fold=maxK, K_idx=kth)
                 training_model(args, train_loader, kth=kth, labelname=dataset_train.sublabels)
-                validing_model(args, valid_loader, kth=kth, labelname=dataset_train.sublabels)
+                for epoch in epoch_checkpoint:
+                    args.valid_model = args.ou_model_path + '/' + args.task + '/' + args.task + '_K{:03d}_epoch{:03d}'.format(kth,epoch)
+                    print('args.valid_model = ' + args.valid_model)
+                    validing_model(args, valid_loader, kth=kth, labelname=dataset_train.sublabels)
+
                 if args.cv_once == True:
                     print('\n************* args.cv_once is TRUE, we only do K_fold with 1st fold, skip the other fold\n')
                     break
