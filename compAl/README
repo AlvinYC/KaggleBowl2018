@@ -1,0 +1,38 @@
+
+                                       _      ___           ____    _____      _      ____    __  __   _____ 
+  ___    ___    _ __ ___    _ __      / \    |_ _|         |  _ \  | ____|    / \    |  _ \  |  \/  | | ____|
+ / __|  / _ \  | '_ ` _ \  | '_ \    / _ \    | |   _____  | |_) | |  _|     / _ \   | | | | | |\/| | |  _|  
+| (__  | (_) | | | | | | | | |_) |  / ___ \   | |  |_____| |  _ <  | |___   / ___ \  | |_| | | |  | | | |___ 
+ \___|  \___/  |_| |_| |_| | .__/  /_/   \_\ |___|         |_| \_\ |_____| /_/   \_\ |____/  |_|  |_| |_____|
+                           |_|                                                                               
+
+
+/* Last update: 2018/04/10
+
+[How to run the scripts]
+1. unzip source code ==> get folder 'compAI'
+2. crate a symbolic link 'stage2_testing_data' under 'compAI', 
+   associate it to image folder (kaggle format)
+3. run one of the following shell to generate CSV 'compAI/bowl_classifier/bowl_classifier_phase2_histology_prediction.csv'
+    * run_bowl_classifier.sh
+    * run_bowl_classifier_force_general_0.50.sh
+    * run_bowl_classifier_force_general_0.60.sh
+    * run_bowl_classifier_force_general_0.70.sh
+    * run_bowl_classifier_force_general_0.80.sh
+    * run_bowl_classifier_force_general_0.90.sh
+    * run_bowl_classifier_force_general_0.95.sh
+    * run_bowl_classifier_force_general_0.99.sh
+4. run one of the following shell to do inference
+    * run_compAI_01_all_general1.sh
+    * run_compAI_03_individual.sh
+
+[Data structure]
+compAI                
+   ├── bowl_classifier         <—  bowl type classifier 
+   ├── DSB20118-cam-ex5        <—  UNET inference
+   ├── mask_rnnn_V01           <—  Mask RCNN inference
+   ├── config                  <—  compAI policy seting
+   ├── stage2_testing_data     <—  symbolic link to image (kaggle format), need to be generated manally
+   └── submit                  <—  rle output folder for each bowl type
+          └─ merge             <-- [output] rle file (stage2_submit.csv) location, submit this file to kaggle
+   
